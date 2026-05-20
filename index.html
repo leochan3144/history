@@ -1,0 +1,187 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, RefreshCw, RotateCcw } from 'lucide-react';
+
+const initialCardsData = [
+  { id: 1, question: "甚麼路線是中古時代連接亞洲、歐洲和非洲的重要貿易紐帶？", answer: "陸上與海上絲綢之路" },
+  { id: 2, question: "在中古歐亞貿易中，哪個民族扮演了重要的「仲介」角色，幾乎壟斷仲介貿易？", answer: "阿拉伯人" },
+  { id: 3, question: "公元八世紀起，中國大力發展哪條貿易路線，以交易絲綢、香料等奢侈品？", answer: "海上絲綢之路" },
+  { id: 4, question: "中古時期，哪兩個意大利城邦因十字軍東征的補給線而崛起，掌控地中海貿易？", answer: "威尼斯與熱那亞" },
+  { id: 5, question: "隨着阿拉伯人仲介貿易規模擴大，甚麼語言成為了歐亞商人的重要溝通語言？", answer: "阿拉伯語" },
+  { id: 6, question: "哪位十三世紀的威尼斯商人的遊記，加深了當時歐洲人對亞洲的了解？", answer: "馬可孛羅 (Marco Polo)" },
+  { id: 7, question: "公元八至十三世紀，穆斯林吸收歐、亞文明並加以融合創新，締造了甚麼時期？", answer: "伊斯蘭文明的「黃金時代」" },
+  { id: 8, question: "請舉出兩個由阿拉伯語演變而來的英文詞彙例子。", answer: "Alcohol (酒精)、Algebra (代數)、Lemon (檸檬) 等" },
+  { id: 9, question: "哪一部伊斯蘭民間故事集，包含了大量歐亞的歷史、宗教與風俗元素？", answer: "《一千零一夜》" },
+  { id: 10, question: "《一千零一夜》中包含了哪些家喻戶曉的冒險故事？", answer: "《辛巴達歷險記》、《阿拉丁神燈》等" },
+  { id: 11, question: "哪一位伊斯蘭哲學家對理性主義與世俗主義影響深遠，被稱為「西歐世俗思想之父」？", answer: "伊本‧魯世德 (Ibn Rushd)" },
+  { id: 12, question: "公元762年，阿拔斯王朝定都哪座城市，使其發展成為世界學術文化交融要地？", answer: "巴格達" },
+  { id: 13, question: "阿爾瑪門統治期間，在巴格達興建了甚麼著名的學術中心？", answer: "「智慧宮」" },
+  { id: 14, question: "在「智慧宮」內，伊斯蘭學者展開了甚麼大規模的運動，翻譯大量古希臘、羅馬等文獻？", answer: "「百年翻譯運動」" },
+  { id: 15, question: "因伊斯蘭教禁止供奉偶像，穆斯林的繪畫藝術主要以甚麼為主題？", answer: "山水、花卉及幾何線條" },
+  { id: 16, question: "由不斷重複、無限延伸的幾何圖形構成的花紋圖案，被稱作甚麼？", answer: "「阿拉伯式花紋」" },
+  { id: 17, question: "伊斯蘭建築的代表「清真寺」，其常見的建築特徵包含哪些？", answer: "希臘羅馬風格的圓頂與拱門，以及四周的宣禮塔" },
+  { id: 18, question: "位於印度的哪座著名陵墓是伊斯蘭建築風格的典範之一？", answer: "泰姬陵" },
+  { id: 19, question: "穆斯林學習了古印度的1-9數字系統及「0」的概念，發展出現今廣泛使用的甚麼系統？", answer: "「阿拉伯數字」系統" },
+  { id: 20, question: "哪位伊斯蘭學者的研究著作，有助推廣代數及十進位制？", answer: "花剌子密 (Al-Khwarizmi)" },
+  { id: 21, question: "伊斯蘭學者運用實驗、分析等科學方法進行甚麼活動，奠定了歐洲早期化學的基礎？", answer: "煉金術" },
+  { id: 22, question: "哪位伊斯蘭醫學家提出了縫合血管的方法，大幅提升了外科手術的成功率？", answer: "扎哈拉維 (Al-Zahrawi)" },
+  { id: 23, question: "伊本‧西那 (Ibn Sina) 的哪部醫學巨著，是中古時代以至近代的重醫學經典？", answer: "《醫典》 (The Canon of Medicine)" },
+  { id: 24, question: "哪位學者的醫學著作《醫學集成》，大大豐富了亞洲人與歐洲人的醫學知識？", answer: "拉齊 (Al-Razi)" },
+  { id: 25, question: "伊斯蘭學者成功研製了甚麼天文儀器，並結合知識確立了曆法與禮拜時間？", answer: "星盤、象限儀" },
+  { id: 26, question: "比魯尼的《城市座標定位》是第一本運用甚麼原理確定地理位置的專書？", answer: "數學原理" },
+  { id: 27, question: "伊德里西的哪部著作劃分了當時已知的世界區域，成為中古時代地理學著作的權威？", answer: "《羅傑之書》" },
+  { id: 28, question: "哪位著名的穆斯林旅行家，其遊歷足跡遍及北非、東歐、中東、中國甚至東南亞？", answer: "伊本‧巴圖塔 (Ibn Battuta)" },
+  { id: 29, question: "中古時代伊斯蘭學者的旅遊熱潮，大多起初是受政府委託進行什麼活動？", answer: "四出研究各地的地理及風貌，以建立交通與商貿網絡" },
+  { id: 30, question: "伊斯蘭文明對古文獻的保存與研究，對近代歐洲帶來了什麼重大的歷史影響？", answer: "推動了近代歐洲文明的興起（及科學發展）" }
+];
+
+export default function App() {
+  const [cards, setCards] = useState([...initialCardsData]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  // CSS injected for 3D flip effect
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .perspective-1000 { perspective: 1000px; }
+      .transform-style-3d { transform-style: preserve-3d; }
+      .backface-hidden { backface-visibility: hidden; }
+      .rotate-y-180 { transform: rotateY(180deg); }
+      
+      .flashcard-inner {
+        transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
+  const handleNext = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % cards.length);
+    }, 150);
+  };
+
+  const handlePrev = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
+    }, 150);
+  };
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const shuffleCards = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      const shuffled = [...cards].sort(() => Math.random() - 0.5);
+      setCards(shuffled);
+      setCurrentIndex(0);
+    }, 150);
+  };
+
+  const resetOrder = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCards([...initialCardsData]);
+      setCurrentIndex(0);
+    }, 150);
+  };
+
+  const currentCard = cards[currentIndex];
+
+  return (
+    <div className="min-h-screen bg-stone-100 text-slate-800 font-sans flex flex-col items-center justify-center p-4">
+      
+      <div className="max-w-2xl w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-teal-800 mb-2">伊斯蘭文明與文化交流</h1>
+          <p className="text-stone-500 font-medium">中二歷史複習字卡 (共 {cards.length} 題)</p>
+        </div>
+
+        {/* Card Container */}
+        <div 
+          className="relative w-full h-80 md:h-96 cursor-pointer perspective-1000 group"
+          onClick={handleFlip}
+        >
+          <div 
+            className={`flashcard-inner w-full h-full relative transform-style-3d shadow-xl rounded-2xl 
+              ${isFlipped ? 'rotate-y-180' : ''}`}
+          >
+            {/* Front of Card (Question) */}
+            <div className="absolute w-full h-full backface-hidden bg-white border border-stone-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+              <span className="absolute top-4 left-4 text-sm font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">
+                問題
+              </span>
+              <p className="text-xl md:text-2xl font-semibold leading-relaxed text-slate-700">
+                {currentCard.question}
+              </p>
+              <div className="absolute bottom-4 text-stone-400 text-sm flex items-center gap-1">
+                <RotateCcw size={14} /> 點擊卡片翻面
+              </div>
+            </div>
+
+            {/* Back of Card (Answer) */}
+            <div className="absolute w-full h-full backface-hidden bg-teal-700 border border-teal-800 rounded-2xl p-8 flex flex-col items-center justify-center text-center rotate-y-180">
+               <span className="absolute top-4 left-4 text-sm font-bold text-teal-900 bg-teal-100 px-3 py-1 rounded-full">
+                答案
+              </span>
+              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-white">
+                {currentCard.answer}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          
+          <div className="flex gap-2">
+             <button 
+              onClick={resetOrder}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone-600 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 transition-colors shadow-sm"
+            >
+              <RotateCcw size={16} />
+              重置
+            </button>
+            <button 
+              onClick={shuffleCards}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors shadow-sm"
+            >
+              <RefreshCw size={16} />
+              隨機打亂
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4 bg-white px-2 py-1 rounded-full shadow-sm border border-stone-200">
+            <button 
+              onClick={handlePrev}
+              className="p-2 text-stone-600 hover:text-teal-600 hover:bg-stone-100 rounded-full transition-colors"
+              aria-label="上一張"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            
+            <span className="font-semibold text-stone-600 min-w-[5rem] text-center">
+              {currentIndex + 1} / {cards.length}
+            </span>
+            
+            <button 
+              onClick={handleNext}
+              className="p-2 text-stone-600 hover:text-teal-600 hover:bg-stone-100 rounded-full transition-colors"
+              aria-label="下一張"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
+}
