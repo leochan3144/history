@@ -1,187 +1,296 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, RefreshCw, RotateCcw } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>伊斯蘭文明與歐亞文化交流 - 學習字卡</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
 
-const initialCardsData = [
-  { id: 1, question: "甚麼路線是中古時代連接亞洲、歐洲和非洲的重要貿易紐帶？", answer: "陸上與海上絲綢之路" },
-  { id: 2, question: "在中古歐亞貿易中，哪個民族扮演了重要的「仲介」角色，幾乎壟斷仲介貿易？", answer: "阿拉伯人" },
-  { id: 3, question: "公元八世紀起，中國大力發展哪條貿易路線，以交易絲綢、香料等奢侈品？", answer: "海上絲綢之路" },
-  { id: 4, question: "中古時期，哪兩個意大利城邦因十字軍東征的補給線而崛起，掌控地中海貿易？", answer: "威尼斯與熱那亞" },
-  { id: 5, question: "隨着阿拉伯人仲介貿易規模擴大，甚麼語言成為了歐亞商人的重要溝通語言？", answer: "阿拉伯語" },
-  { id: 6, question: "哪位十三世紀的威尼斯商人的遊記，加深了當時歐洲人對亞洲的了解？", answer: "馬可孛羅 (Marco Polo)" },
-  { id: 7, question: "公元八至十三世紀，穆斯林吸收歐、亞文明並加以融合創新，締造了甚麼時期？", answer: "伊斯蘭文明的「黃金時代」" },
-  { id: 8, question: "請舉出兩個由阿拉伯語演變而來的英文詞彙例子。", answer: "Alcohol (酒精)、Algebra (代數)、Lemon (檸檬) 等" },
-  { id: 9, question: "哪一部伊斯蘭民間故事集，包含了大量歐亞的歷史、宗教與風俗元素？", answer: "《一千零一夜》" },
-  { id: 10, question: "《一千零一夜》中包含了哪些家喻戶曉的冒險故事？", answer: "《辛巴達歷險記》、《阿拉丁神燈》等" },
-  { id: 11, question: "哪一位伊斯蘭哲學家對理性主義與世俗主義影響深遠，被稱為「西歐世俗思想之父」？", answer: "伊本‧魯世德 (Ibn Rushd)" },
-  { id: 12, question: "公元762年，阿拔斯王朝定都哪座城市，使其發展成為世界學術文化交融要地？", answer: "巴格達" },
-  { id: 13, question: "阿爾瑪門統治期間，在巴格達興建了甚麼著名的學術中心？", answer: "「智慧宮」" },
-  { id: 14, question: "在「智慧宮」內，伊斯蘭學者展開了甚麼大規模的運動，翻譯大量古希臘、羅馬等文獻？", answer: "「百年翻譯運動」" },
-  { id: 15, question: "因伊斯蘭教禁止供奉偶像，穆斯林的繪畫藝術主要以甚麼為主題？", answer: "山水、花卉及幾何線條" },
-  { id: 16, question: "由不斷重複、無限延伸的幾何圖形構成的花紋圖案，被稱作甚麼？", answer: "「阿拉伯式花紋」" },
-  { id: 17, question: "伊斯蘭建築的代表「清真寺」，其常見的建築特徵包含哪些？", answer: "希臘羅馬風格的圓頂與拱門，以及四周的宣禮塔" },
-  { id: 18, question: "位於印度的哪座著名陵墓是伊斯蘭建築風格的典範之一？", answer: "泰姬陵" },
-  { id: 19, question: "穆斯林學習了古印度的1-9數字系統及「0」的概念，發展出現今廣泛使用的甚麼系統？", answer: "「阿拉伯數字」系統" },
-  { id: 20, question: "哪位伊斯蘭學者的研究著作，有助推廣代數及十進位制？", answer: "花剌子密 (Al-Khwarizmi)" },
-  { id: 21, question: "伊斯蘭學者運用實驗、分析等科學方法進行甚麼活動，奠定了歐洲早期化學的基礎？", answer: "煉金術" },
-  { id: 22, question: "哪位伊斯蘭醫學家提出了縫合血管的方法，大幅提升了外科手術的成功率？", answer: "扎哈拉維 (Al-Zahrawi)" },
-  { id: 23, question: "伊本‧西那 (Ibn Sina) 的哪部醫學巨著，是中古時代以至近代的重醫學經典？", answer: "《醫典》 (The Canon of Medicine)" },
-  { id: 24, question: "哪位學者的醫學著作《醫學集成》，大大豐富了亞洲人與歐洲人的醫學知識？", answer: "拉齊 (Al-Razi)" },
-  { id: 25, question: "伊斯蘭學者成功研製了甚麼天文儀器，並結合知識確立了曆法與禮拜時間？", answer: "星盤、象限儀" },
-  { id: 26, question: "比魯尼的《城市座標定位》是第一本運用甚麼原理確定地理位置的專書？", answer: "數學原理" },
-  { id: 27, question: "伊德里西的哪部著作劃分了當時已知的世界區域，成為中古時代地理學著作的權威？", answer: "《羅傑之書》" },
-  { id: 28, question: "哪位著名的穆斯林旅行家，其遊歷足跡遍及北非、東歐、中東、中國甚至東南亞？", answer: "伊本‧巴圖塔 (Ibn Battuta)" },
-  { id: 29, question: "中古時代伊斯蘭學者的旅遊熱潮，大多起初是受政府委託進行什麼活動？", answer: "四出研究各地的地理及風貌，以建立交通與商貿網絡" },
-  { id: 30, question: "伊斯蘭文明對古文獻的保存與研究，對近代歐洲帶來了什麼重大的歷史影響？", answer: "推動了近代歐洲文明的興起（及科學發展）" }
-];
+        /* 3D Flip Card Styles */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        
+        .card-container {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
 
-export default function App() {
-  const [cards, setCards] = useState([...initialCardsData]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
+        /* 隱藏滾動條但保持可滾動（給長文字準備） */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-gray-800">
 
-  // CSS injected for 3D flip effect
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .perspective-1000 { perspective: 1000px; }
-      .transform-style-3d { transform-style: preserve-3d; }
-      .backface-hidden { backface-visibility: hidden; }
-      .rotate-y-180 { transform: rotateY(180deg); }
-      
-      .flashcard-inner {
-        transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-      }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white shadow-md p-4 text-center relative">
+        <h1 class="text-2xl md:text-3xl font-bold tracking-wide">伊斯蘭文明與歐亞文化交流</h1>
+        <p class="text-indigo-200 mt-1 text-sm md:text-base">歷史學習字卡</p>
+    </header>
 
-  const handleNext = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % cards.length);
-    }, 150);
-  };
-
-  const handlePrev = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
-    }, 150);
-  };
-
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
-
-  const shuffleCards = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      const shuffled = [...cards].sort(() => Math.random() - 0.5);
-      setCards(shuffled);
-      setCurrentIndex(0);
-    }, 150);
-  };
-
-  const resetOrder = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      setCards([...initialCardsData]);
-      setCurrentIndex(0);
-    }, 150);
-  };
-
-  const currentCard = cards[currentIndex];
-
-  return (
-    <div className="min-h-screen bg-stone-100 text-slate-800 font-sans flex flex-col items-center justify-center p-4">
-      
-      <div className="max-w-2xl w-full">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-teal-800 mb-2">伊斯蘭文明與文化交流</h1>
-          <p className="text-stone-500 font-medium">中二歷史複習字卡 (共 {cards.length} 題)</p>
-        </div>
-
-        {/* Card Container */}
-        <div 
-          className="relative w-full h-80 md:h-96 cursor-pointer perspective-1000 group"
-          onClick={handleFlip}
-        >
-          <div 
-            className={`flashcard-inner w-full h-full relative transform-style-3d shadow-xl rounded-2xl 
-              ${isFlipped ? 'rotate-y-180' : ''}`}
-          >
-            {/* Front of Card (Question) */}
-            <div className="absolute w-full h-full backface-hidden bg-white border border-stone-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
-              <span className="absolute top-4 left-4 text-sm font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">
-                問題
-              </span>
-              <p className="text-xl md:text-2xl font-semibold leading-relaxed text-slate-700">
-                {currentCard.question}
-              </p>
-              <div className="absolute bottom-4 text-stone-400 text-sm flex items-center gap-1">
-                <RotateCcw size={14} /> 點擊卡片翻面
-              </div>
-            </div>
-
-            {/* Back of Card (Answer) */}
-            <div className="absolute w-full h-full backface-hidden bg-teal-700 border border-teal-800 rounded-2xl p-8 flex flex-col items-center justify-center text-center rotate-y-180">
-               <span className="absolute top-4 left-4 text-sm font-bold text-teal-900 bg-teal-100 px-3 py-1 rounded-full">
-                答案
-              </span>
-              <p className="text-2xl md:text-3xl font-bold leading-relaxed text-white">
-                {currentCard.answer}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Controls */}
-        <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          
-          <div className="flex gap-2">
-             <button 
-              onClick={resetOrder}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone-600 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 transition-colors shadow-sm"
-            >
-              <RotateCcw size={16} />
-              重置
-            </button>
-            <button 
-              onClick={shuffleCards}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors shadow-sm"
-            >
-              <RefreshCw size={16} />
-              隨機打亂
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4 bg-white px-2 py-1 rounded-full shadow-sm border border-stone-200">
-            <button 
-              onClick={handlePrev}
-              className="p-2 text-stone-600 hover:text-teal-600 hover:bg-stone-100 rounded-full transition-colors"
-              aria-label="上一張"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            
-            <span className="font-semibold text-stone-600 min-w-[5rem] text-center">
-              {currentIndex + 1} / {cards.length}
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 w-full max-w-4xl mx-auto">
+        
+        <!-- Progress Bar & Controls Top -->
+        <div class="w-full flex justify-between items-center mb-6 px-2">
+            <span id="progress-text" class="text-lg font-medium text-gray-600 bg-white px-4 py-1 rounded-full shadow-sm border border-gray-200">
+                1 / 30
             </span>
-            
-            <button 
-              onClick={handleNext}
-              className="p-2 text-stone-600 hover:text-teal-600 hover:bg-stone-100 rounded-full transition-colors"
-              aria-label="下一張"
-            >
-              <ChevronRight size={24} />
+            <button id="shuffle-btn" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full transition-colors shadow-sm text-sm md:text-base font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
+                隨機洗牌
             </button>
-          </div>
-
         </div>
 
-      </div>
-    </div>
-  );
-}
+        <!-- Flashcard Area -->
+        <div class="w-full h-80 md:h-96 perspective-1000 cursor-pointer select-none group" id="flashcard">
+            <div class="card-container w-full h-full relative transform-style-3d shadow-xl rounded-2xl" id="card-inner">
+                
+                <!-- Front (Question) -->
+                <div class="absolute inset-0 w-full h-full bg-white rounded-2xl backface-hidden border-2 border-indigo-100 flex flex-col">
+                    <div class="bg-indigo-50 rounded-t-xl px-6 py-3 border-b border-indigo-100 flex items-center justify-between">
+                        <span class="text-indigo-800 font-bold">問題</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center p-6 md:p-10 overflow-y-auto no-scrollbar">
+                        <h2 id="question-text" class="text-2xl md:text-3xl text-center font-medium leading-relaxed text-gray-800">
+                            載入中...
+                        </h2>
+                    </div>
+                    <div class="text-center pb-4 text-gray-400 text-sm">點擊卡片翻轉</div>
+                </div>
+
+                <!-- Back (Answer) -->
+                <div class="absolute inset-0 w-full h-full bg-indigo-50 rounded-2xl backface-hidden rotate-y-180 border-2 border-indigo-200 flex flex-col shadow-inner">
+                    <div class="bg-indigo-600 rounded-t-xl px-6 py-3 border-b border-indigo-700 flex items-center justify-between text-white">
+                        <span class="font-bold">答案</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-indigo-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center p-6 md:p-10 overflow-y-auto no-scrollbar">
+                        <p id="answer-text" class="text-2xl md:text-3xl text-center font-bold text-indigo-900 leading-relaxed">
+                            載入中...
+                        </p>
+                    </div>
+                    <div class="text-center pb-4 text-indigo-400 text-sm">點擊卡片翻轉回問題</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Bottom -->
+        <div class="w-full flex justify-center items-center gap-4 mt-8">
+            <button id="prev-btn" class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center bg-white border-2 border-gray-200 text-gray-600 rounded-full hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            
+            <button id="flip-btn" class="flex-1 max-w-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-colors shadow-md text-lg focus:outline-none focus:ring-4 focus:ring-indigo-200">
+                翻轉卡片 (Space)
+            </button>
+            
+            <button id="next-btn" class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center bg-white border-2 border-gray-200 text-gray-600 rounded-full hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </div>
+
+        <div class="mt-6 text-gray-400 text-sm flex gap-4 text-center justify-center w-full">
+            <span class="hidden md:inline">💡 提示：可使用鍵盤 ⬅️ ➡️ 切換，空白鍵翻轉。</span>
+            <span class="md:hidden">💡 提示：可左右滑動切換卡片。</span>
+        </div>
+
+    </main>
+
+    <script>
+        // 字卡資料 (30條，擷取自課本圖片)
+        const flashcardData = [
+            { q: "中古時代，陸上與海上絲綢之路連接了哪三大洲？", a: "歐洲、亞洲、非洲" },
+            { q: "阿拉伯人從公元幾世紀開始扮演歐亞貿易的仲介角色？", a: "公元七世紀" },
+            { q: "公元八世紀起，哪個國家大力發展海上絲綢之路？", a: "中國" },
+            { q: "中國倡議的「一帶一路」中，「一帶」是指什麼？", a: "絲綢之路經濟帶" },
+            { q: "「一帶一路」中，「一路」是指什麼？", a: "二十一世紀海上絲綢之路" },
+            { q: "中古時代，哪個義大利城邦積極發展與亞洲的貿易並取得地中海控制權？", a: "威尼斯 (或熱那亞)" },
+            { q: "十三世紀哪位威尼斯商人的遊記讓當時歐洲人了解西亞、中亞及中國等地的風貌？", a: "馬可孛羅" },
+            { q: "由於阿拉伯商人的仲介貿易擴大，哪種語言成為歐亞商人的重要溝通語言？", a: "阿拉伯語" },
+            { q: "締造「黃金時代」的伊斯蘭文明，吸收並融合了哪些古文明？", a: "古希臘、羅馬、波斯、印度與中國等" },
+            { q: "現時伊斯蘭世界的主要語言是什麼？", a: "阿拉伯語" },
+            { q: "阿拉伯字母系統的全球使用人數僅次於哪種字母？", a: "拉丁字母" },
+            { q: "英文詞彙 \"alcohol\" (酒精) 及 \"algebra\" (代數) 源自哪種語言？", a: "阿拉伯語" },
+            { q: "約公元九世紀以阿拉伯語成書的著名伊斯蘭民間故事集叫什麼？", a: "《一千零一夜》" },
+            { q: "講述年輕穆斯林富商在旅程中遇上各種怪獸與神奇現象的故事叫什麼？", a: "《辛巴達歷險記》" },
+            { q: "講述少年利用神燈精靈幫助成為富人的故事叫什麼？", a: "《阿拉丁神燈》" },
+            { q: "伊斯蘭哲學被視為哪種現代思想的先驅？", a: "現代哲學思想 (如理性主義、世俗主義等)" },
+            { q: "哪位伊斯蘭哲學家被稱為「西歐世俗思想之父」？", a: "伊本·魯世德" },
+            { q: "公元762年，阿拔斯王朝定都哪裡，使其其後發展成世界學術文化交融要地？", a: "巴格達" },
+            { q: "阿爾瑪門統治期間，在巴格達興建了什麼著名的學術中心？", a: "「智慧宮」" },
+            { q: "伊斯蘭學者在「智慧宮」內展開了什麼大規模運動，翻譯了大量文獻？", a: "「百年翻譯運動」" },
+            { q: "穆斯林為了避免繪製人與動物肖像，發展出由幾何圖形構成的什麼圖案？", a: "阿拉伯式花紋" },
+            { q: "哪種建築物是伊斯蘭建築的代表？", a: "清真寺" },
+            { q: "伊斯蘭建築融合了古希臘、羅馬的建築風格，通常具有什麼特徵？", a: "圓頂與拱門" },
+            { q: "印度的哪座著名陵墓是伊斯蘭建築的典範之一？", a: "泰姬陵" },
+            { q: "穆斯林學習了古印度的數字系統，發展出現今最廣泛使用的什麼系統？", a: "阿拉伯數字系統" },
+            { q: "哪位伊斯蘭學者的研究著作有助推廣代數及十進位制？", a: "花拉子密" },
+            { q: "伊斯蘭學者運用實驗、分析等方法進行什麼活動，奠定了歐洲早期化學的基礎？", a: "煉金術" },
+            { q: "哪位伊斯蘭醫學家提出縫合血管的方法，提升了外科手術的成功率？", a: "扎哈拉維" },
+            { q: "哪兩本著作是中古時代以至近代的重醫學經典？", a: "拉齊的《醫學集成》與伊本·西那的《醫典》" },
+            { q: "哪位著名的穆斯林旅行家，其足跡遍及北非、東歐、中東、中國甚至東南亞？", a: "伊本·巴圖塔" }
+        ];
+
+        let cards = [...flashcardData];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        // DOM Elements
+        const cardInner = document.getElementById('card-inner');
+        const flashcard = document.getElementById('flashcard');
+        const questionText = document.getElementById('question-text');
+        const answerText = document.getElementById('answer-text');
+        const progressText = document.getElementById('progress-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const flipBtn = document.getElementById('flip-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+
+        // Initialization
+        function init() {
+            updateUI();
+        }
+
+        // 翻轉邏輯
+        function toggleFlip() {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                cardInner.classList.add('rotate-y-180');
+            } else {
+                cardInner.classList.remove('rotate-y-180');
+            }
+        }
+
+        // 更新介面
+        function updateUI() {
+            // 如果當前是翻開狀態，先翻轉回來，等動畫結束後再換字
+            if (isFlipped) {
+                isFlipped = false;
+                cardInner.classList.remove('rotate-y-180');
+                setTimeout(() => {
+                    setContent();
+                }, 300); // 等待翻轉動畫過半
+            } else {
+                setContent();
+            }
+        }
+
+        function setContent() {
+            const currentCard = cards[currentIndex];
+            questionText.textContent = currentCard.q;
+            answerText.textContent = currentCard.a;
+            progressText.textContent = `${currentIndex + 1} / ${cards.length}`;
+            
+            // 更新按鈕狀態
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === cards.length - 1;
+        }
+
+        // 下一張
+        function nextCard() {
+            if (currentIndex < cards.length - 1) {
+                currentIndex++;
+                updateUI();
+            }
+        }
+
+        // 上一張
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateUI();
+            }
+        }
+
+        // 洗牌功能 (Fisher-Yates shuffle)
+        function shuffleCards() {
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            currentIndex = 0;
+            updateUI();
+            
+            // 洗牌按鈕動畫回饋
+            shuffleBtn.classList.add('scale-95', 'bg-amber-700');
+            setTimeout(() => {
+                shuffleBtn.classList.remove('scale-95', 'bg-amber-700');
+            }, 150);
+        }
+
+        // Event Listeners
+        flashcard.addEventListener('click', toggleFlip);
+        flipBtn.addEventListener('click', toggleFlip);
+        nextBtn.addEventListener('click', nextCard);
+        prevBtn.addEventListener('click', prevCard);
+        shuffleBtn.addEventListener('click', shuffleCards);
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // 防止空白鍵滾動頁面
+                toggleFlip();
+            } else if (e.code === 'ArrowRight') {
+                nextCard();
+            } else if (e.code === 'ArrowLeft') {
+                prevCard();
+            }
+        });
+
+        // Touch Swipe Support
+        let touchstartX = 0;
+        let touchendX = 0;
+        const SWIPE_THRESHOLD = 50;
+
+        flashcard.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        flashcard.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const distance = touchendX - touchstartX;
+            if (distance < -SWIPE_THRESHOLD) {
+                // Swiped left -> Next card
+                nextCard();
+            } else if (distance > SWIPE_THRESHOLD) {
+                // Swiped right -> Previous card
+                prevCard();
+            }
+            // 如果滑動距離不夠大，當作點擊處理（已經由 click 事件處理了翻轉）
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
